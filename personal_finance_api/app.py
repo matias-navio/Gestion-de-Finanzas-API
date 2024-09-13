@@ -1,28 +1,16 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from config.config import Config  # Importa la configuración
+from models.models import db
+from config.config import Config
 
-# Crear una instancia de SQLAlchemy
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config.from_object(Config)
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)  # Carga la configuración
+# Inicializar la base de datos con la aplicación
+db.init_app(app)
 
-    db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
-
-    # Importar los modelos aquí para evitar problemas de importación circular
-    from models.models import Income, Expense
-
-    @app.route('/')
-    def home():
-        return "Base de datos y tablas creadas exitosamente."
-
-    return app
+# Crear las tablas en la base de datos
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
-    app = create_app()
     app.run(debug=True)
